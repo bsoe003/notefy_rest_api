@@ -3,6 +3,7 @@ import os
 import time
 
 from apiclient import discovery, errors, http
+from apiclient.http import MediaFileUpload
 from oauth2client import client, tools
 import oauth2client
 
@@ -72,6 +73,29 @@ class Drive(object):
                 print 'Download Complete'
                 return
 
+    def upload(self, title, description, parent_id, mime_type, filename):
+        media_body = MediaFileUpload(filename, mimetype=mime_type, resumable=True)
+        body = {
+            'title': os.path.basename(title),
+            'description': description,
+            'mimeType': mime_type
+        }
+        if parent_id:
+            body['parents'] = [{'id': parent_id}]
+
+        try:
+            request = self.service.files().insert(body=body, media_body=media_body).execute()
+            return request
+        except errors.HttpError, error:
+            print 'An error occured: %s' % error
+            return None
+
+"""filename = "IMG_3837.JPG"
+description = "Testing"
+mime_type = "image/JPG"
+parent_id = None"""
+
 drive = Drive()
+# drive.upload(title = filename, description = description, parent_id = parent_id, mime_type = mime_type, filename = filename)
 # print drive.retrieveFiles("image/jpeg")
 # drive.download("0B8BpS6HWrs1RZld1YnhwaFhJMjQ", open("tmp.jpg", "w"))
