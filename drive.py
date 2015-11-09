@@ -73,29 +73,24 @@ class Drive(object):
                 print 'Download Complete'
                 return
 
-    def upload(self, title, description, parent_id, mime_type, filename):
-        media_body = MediaFileUpload(filename, mimetype=mime_type, resumable=True)
+    def upload(self, title, description, mimeType, filename, parentID=None):
+        mediaBody = MediaFileUpload(filename, mimetype=mimeType, resumable=True)
         body = {
             'title': os.path.basename(title),
             'description': description,
-            'mimeType': mime_type
+            'mimeType': mimeType
         }
-        if parent_id:
-            body['parents'] = [{'id': parent_id}]
+        if parentID:
+            body['parents'] = [{'id': parentID}]
 
         try:
-            request = self.service.files().insert(body=body, media_body=media_body).execute()
+            request = self.service.files().insert(body=body, media_body=mediaBody).execute()
             return request
         except errors.HttpError, error:
             print 'An error occured: %s' % error
             return None
 
-"""filename = "IMG_3837.JPG"
-description = "Testing"
-mime_type = "image/JPG"
-parent_id = None"""
-
 drive = Drive()
-# drive.upload(title = filename, description = description, parent_id = parent_id, mime_type = mime_type, filename = filename)
 # print drive.retrieveFiles("image/jpeg")
 # drive.download("0B8BpS6HWrs1RZld1YnhwaFhJMjQ", open("tmp.jpg", "w"))
+# drive.upload(title = title, description = description, mimeType = mimeType, filename = filename)
