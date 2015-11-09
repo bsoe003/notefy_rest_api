@@ -84,8 +84,7 @@ class Drive(object):
             body['parents'] = [{'id': parentID}]
 
         try:
-            request = self.service.files().insert(body=body, media_body=mediaBody).execute()
-            return request
+            return self.service.files().insert(body=body, media_body=mediaBody).execute()
         except errors.HttpError, error:
             print 'An error occured: %s' % error
             return None
