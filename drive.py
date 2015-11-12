@@ -66,12 +66,12 @@ class Drive(object):
                 download_progress, done = media_request.next_chunk()
             except errors.HttpError, error:
                 print 'An error occurred: %s' % error
-                return
+                return False
             if download_progress:
                 print 'Download Progress: %d%%' % int(download_progress.progress() * 100)
             if done:
                 print 'Download Complete'
-                return
+                return True
 
     def upload(self, title, description, mimeType, filename, parentID=None):
         mediaBody = MediaFileUpload(filename, mimetype=mimeType, resumable=True)
@@ -89,7 +89,7 @@ class Drive(object):
             print 'An error occured: %s' % error
             return None
 
-drive = Drive()
+# drive = Drive()
 # print drive.retrieveFiles("image/jpeg")
 # drive.download("0B8BpS6HWrs1RZld1YnhwaFhJMjQ", open("tmp.jpg", "w"))
 # drive.upload(title = title, description = description, mimeType = mimeType, filename = filename)
