@@ -25,8 +25,19 @@ def alert():
 	fileID = request.args["fileID"] # try using 0B0HnBs236F_YLVF1X0E0NVhHOG8
 	filename = "image_cache/"+fileID+".jpg"
 	success = driver.download(fileID, open(filename, 'w'))
+
+	# START UPLOAD
+	# title = "sample-111115.txt"
+	# description = ""
+	# mimeType = "text/plain"
+	# name = "sample"
+	uploading = driver.upload(title, description, mimeType, name)
+	
 	if success:
 		body = json.dumps({"message": "Download successful"})
+		return Response(body, status=200, mimetype='application/json')
+	if uploading:
+		body = json.dumps({"message": "Upload successful."})
 		return Response(body, status=200, mimetype='application/json')
 	else:
 		os.remove(filename)

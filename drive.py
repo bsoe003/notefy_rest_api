@@ -73,23 +73,35 @@ class Drive(object):
                 print 'Download Complete'
                 return True
 
-    def upload(self, title, description, mimeType, filename, parentID=None):
-        mediaBody = MediaFileUpload(filename, mimetype=mimeType, resumable=True)
+    def upload(self, title, description, mimeType, name, parentID=None):
+        mediaBody = MediaFileUpload(name, mimetype=mimeType, resumable=True)
         body = {
             'title': os.path.basename(title),
             'description': description,
             'mimeType': mimeType
-        }
+            }
         if parentID:
             body['parents'] = [{'id': parentID}]
 
-        try:
-            return self.service.files().insert(body=body, media_body=mediaBody).execute()
-        except errors.HttpError, error:
-            print 'An error occured: %s' % error
-            return None
+        request = self.service.files().insert(body=body, media_body=mediaBody)
+        while True:
+            try:
+                status, response = request.next_chunk()
+            except errors.HttpError, error:
+                print 'An error occured: %s' % error
+                return False
+            if status:
+                print 'Uploaded %d%%.' % int(status.progress() * 100)
+            if response:
+                print 'Upload Complete! :)'
+                return True
+
+# title = "test.jpg"
+# description = "testing"
+# mimeType = "image/jpg"
+# name = "test.jpg"
 
 # drive = Drive()
 # print drive.retrieveFiles("image/jpeg")
-# drive.download("0B8BpS6HWrs1RZld1YnhwaFhJMjQ", open("tmp.jpg", "w"))
-# drive.upload(title = title, description = description, mimeType = mimeType, filename = filename)
+# drive.download("0B0HnBs236F_YLVF1X0E0NVhHOG8", open("IMG_4283.jpg", "w"))
+# drive.upload(title = title, description = description, mimeType = mimeType, name = name)
