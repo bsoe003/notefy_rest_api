@@ -82,7 +82,6 @@ class Drive(object):
             }
         if parentID:
             body['parents'] = [{'id': parentID}]
-
         request = self.service.files().insert(body=body, media_body=mediaBody)
         while True:
             try:
@@ -96,12 +95,3 @@ class Drive(object):
                 print 'Upload Complete! :)'
                 return True
 
-# title = "test.jpg"
-# description = "testing"
-# mimeType = "image/jpg"
-# name = "test.jpg"
-
-# drive = Drive()
-# print drive.retrieveFiles("image/jpeg")
-# drive.download("0B0HnBs236F_YLVF1X0E0NVhHOG8", open("IMG_4283.jpg", "w"))
-# drive.upload(title = title, description = description, mimeType = mimeType, name = name)

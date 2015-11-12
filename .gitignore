@@ -59,4 +59,5 @@ target/
 .DS_Store
 client_secret.json
 image_cache
+text_cache
 ngrok
