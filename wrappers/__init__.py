@@ -5,7 +5,7 @@ import requests
 class Notefy(object):
     def __init__(self):
         self.drive = google.Drive()
-        self.engine = seach.Engine()
+        self.engine = search.Engine()
         self.input = ""
 
     def download(self, filename):
@@ -17,11 +17,14 @@ class Notefy(object):
         print "Attempting to download: %s.jpg" % fileID
         if not self.drive.download(fileID):
             return {"error": "There seems to be an error while downloading"}
+        print "Download Complete!"
         return {}
 
     def upload(self, title, content):
+        print "Attempting to upload OCR result"
         if not self.drive.upload(title, content):
             return {"error": "There seems to be an error while uploading"}
+        print "Upload Complete!"
         return {}
 
     def sendToOCR(self):
