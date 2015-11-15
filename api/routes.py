@@ -1,8 +1,6 @@
 from flask import *
 from api import app, models
-from drive import Drive
-import os
-import requests
+from wrappers import Notefy
 import time
 
 @app.route('/')
@@ -21,56 +19,41 @@ def alert():
 	if request.args["token"] != "Nadir001":
 		body = json.dumps({"error": "Invalid token"})
 		return Response(body, status=401, mimetype='application/json')
-	if "fileID" not in request.args:
+	if "filename" not in request.args:
 		body = json.dumps({"error": "Missing required argument"})
 		return Response(body, status=422, mimetype='application/json')
 	
-	driver = Drive() # instantiate Google Drive instance
+	notefy = Notefy()
 
 	# download image from Google Drive
-	fileID = request.args["fileID"] # try using 0B0HnBs236F_YLVF1X0E0NVhHOG8
-	imageFile = "image_cache/"+fileID+".jpg"
-	downloaded = driver.download(fileID, open(imageFile, 'w'))
-	if not downloaded:
-		os.remove(imageFile)
-		body = json.dumps({"error": "There seems to be an error while downloading"})
-		return Response(body, status=409, mimetype='application/json')
+	downloaded = notefy.download(request.args["filename"])
+	# downloaded = notefy.download(request.args["fileID"]) # try using 0B0HnBs236F_YLVF1X0E0NVhHOG8
+	if "error" in downloaded:
+		notefy.clean()
+		return Response(json.dumps(downloaded), status=409, mimetype='application/json')
 
 	# Perform OCR through a9t9/Microsoft service
-	ocrData = {"apikey": "helloworld", "language": "eng"}
-	files = {"file": open(os.getcwd()+"/"+imageFile, 'rb')}
 	try:
-		ocrResponse = requests.post("https://ocr.a9t9.com/api/Parse/Image", data=ocrData, files=files)
-		print "\nOCR Result:\n"+str(ocrResponse.json()["ParsedResults"][0]["ParsedText"])
-		parsedText = ocrResponse.json()["ParsedResults"][0]["ParsedText"]
+		content = notefy.sendToOCR()
 	except:
+		notefy.clean()
 		body = json.dumps({"error": "There seems to be an error while performing OCR"})
-		return Response(body, status=409, mimetype='application/json')
+	 	return Response(body, status=409, mimetype='application/json')
 
 	# create sample output text (soon to be changed)
-	title = str(int(time.time()))
-	try:
-		f = open("text_cache/"+title+".txt", 'w')
-		f.write(parsedText)
-		f.close()
-	except:
-		body = json.dumps({"error": "Unable to create notes"})
-		return Response(body, status=409, mimetype='application/json')
+	title = "BILD1_"+str(int(time.time()))+".txt"
 
 	# upload the text file to Google Drive
-	uploaded = driver.upload(title, "", "text/plain", "text_cache/"+title+".txt")
-	if not uploaded:
-		os.remove(imageFile)
-		os.remove("text_cache/"+title+".txt")
-		body = json.dumps({"error": "There seems to be an error while uploading"})
-		return Response(body, status=409, mimetype='application/json')
+	uploaded = notefy.upload(title, content)
+	if "error" in uploaded:
+		notefy.clean()
+		return Response(json.dumps(uploaded), status=409, mimetype='application/json')
 
 	# finishing touches
-	os.remove(imageFile)
-	os.remove("text_cache/"+title+".txt")
+	notefy.clean()
 	body = json.dumps({
 		"message": "Note has been created successfully and is now saved under Google Drive",
-		"uploaded": uploaded,
-		"downloaded": downloaded
+		"uploaded": "error" not in uploaded,
+		"downloaded": "error" not in downloaded
 	})
 	return Response(body, status=200, mimetype='application/json')
