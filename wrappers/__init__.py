@@ -1,0 +1,38 @@
+import google, search
+import os
+import requests
+
+class Notefy(object):
+    def __init__(self):
+        self.drive = google.Drive()
+        self.engine = seach.Engine()
+        self.input = ""
+
+    def download(self, filename):
+        filelist = self.drive.getFiles("title = '%s'" % (filename+".jpg"))
+        if not filelist:
+            return {"error": "%s does not exist in your drive" % filename}
+        fileID = filelist[0]['id']
+        self.input = "image_cache/%s.jpg" % fileID
+        print "Attempting to download: %s.jpg" % fileID
+        if not self.drive.download(fileID):
+            return {"error": "There seems to be an error while downloading"}
+        return {}
+
+    def upload(self, title, content):
+        if not self.drive.upload(title, content):
+            return {"error": "There seems to be an error while uploading"}
+        return {}
+
+    def sendToOCR(self):
+        data = {"apikey": "helloworld", "language": "eng"}
+        files = {"file": open(os.getcwd()+"/"+self.input, 'rb')}
+        response = requests.post("https://ocr.a9t9.com/api/Parse/Image", data=data, files=files)
+        print "\nOCR Result:\n"+str(response.json()["ParsedResults"][0]["ParsedText"])
+        return response.json()["ParsedResults"][0]["ParsedText"]
+
+    def clean(self):
+        try:
+            os.remove(self.input)
+        except:
+            pass
