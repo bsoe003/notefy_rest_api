@@ -61,3 +61,4 @@ client_secret.json
 image_cache
 text_cache
 ngrok
+sample.ignore.txt
