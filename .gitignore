@@ -58,6 +58,9 @@ target/
 
 .DS_Store
 client_secret.json
+client_secrets.json
+credentials.json
+settings.yaml
 image_cache
 text_cache
 ngrok

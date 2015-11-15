@@ -1,6 +1,6 @@
 from flask import *
 from api import app, models
-from wrappers.notefy import Notefy
+from wrappers import Notefy
 import time
 
 @app.route('/')
@@ -19,14 +19,15 @@ def alert():
 	if request.args["token"] != "Nadir001":
 		body = json.dumps({"error": "Invalid token"})
 		return Response(body, status=401, mimetype='application/json')
-	if "fileID" not in request.args:
+	if "filename" not in request.args:
 		body = json.dumps({"error": "Missing required argument"})
 		return Response(body, status=422, mimetype='application/json')
 	
 	notefy = Notefy()
 
 	# download image from Google Drive
-	downloaded = notefy.download(request.args["fileID"]) # try using 0B0HnBs236F_YLVF1X0E0NVhHOG8
+	downloaded = notefy.download(request.args["filename"])
+	# downloaded = notefy.download(request.args["fileID"]) # try using 0B0HnBs236F_YLVF1X0E0NVhHOG8
 	if "error" in downloaded:
 		notefy.clean()
 		return Response(json.dumps(downloaded), status=409, mimetype='application/json')
@@ -40,16 +41,10 @@ def alert():
 	 	return Response(body, status=409, mimetype='application/json')
 
 	# create sample output text (soon to be changed)
-	title = str(int(time.time()))
-	try:
-		notefy.setOutput("text_cache/"+title+".txt", content)
-	except:
-		notefy.clean()
-		body = json.dumps({"error": "Unable to create output file"})
-	 	return Response(body, status=409, mimetype='application/json')
+	title = "BILD1_"+str(int(time.time()))+".txt"
 
 	# upload the text file to Google Drive
-	uploaded = notefy.upload(title, "text/plain")
+	uploaded = notefy.upload(title, content)
 	if "error" in uploaded:
 		notefy.clean()
 		return Response(json.dumps(uploaded), status=409, mimetype='application/json')
