@@ -7,7 +7,7 @@ class Speller(object):
     def __init__(self, database):
         def words(text):
             return re.findall('[a-z]+', text.lower())
-        self.NWORDS = self.train(words(file(database).read()))
+        self.keyterms = self.train(words(file(database).read()))
 
     def train(self, features):
         model = collections.defaultdict(lambda: 1)
@@ -25,13 +25,13 @@ class Speller(object):
             return set(deletes + transposes + replaces + inserts)
 
         def known_edits2(word):
-            return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if e2 in self.NWORDS)
+            return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if e2 in self.keyterms)
 
         def known(words):
-            return set(w for w in words if w in self.NWORDS)
+            return set(w for w in words if w in self.keyterms)
 
         candidates = known([word]) or known(edits1(word)) or known_edits2(word) or [word]
-        return max(candidates, key=self.NWORDS.get)
+        return max(candidates, key=self.keyterms.get)
 
 # speller = Speller(os.getcwd()+'/../big.txt')
 # print speller.correct("speling")
