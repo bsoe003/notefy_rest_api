@@ -1,7 +1,10 @@
 from flask import *
 from api import app, models
-from wrappers import Notefy
+from wrappers import Notefy, spelling
 import time
+
+notefy = Notefy()
+notefy.speller = spelling.Speller('dictionary/cellFirst10Page.txt')
 
 @app.route('/')
 def root():
@@ -22,8 +25,6 @@ def alert():
 	if "filename" not in request.args:
 		body = json.dumps({"error": "Missing required argument"})
 		return Response(body, status=422, mimetype='application/json')
-	
-	notefy = Notefy()
 
 	# download image from Google Drive
 	downloaded = notefy.download(request.args["filename"])
@@ -39,6 +40,19 @@ def alert():
 		notefy.clean()
 		body = json.dumps({"error": "There seems to be an error while performing OCR"})
 	 	return Response(body, status=409, mimetype='application/json')
+
+	content = content.split()
+	entries = set()
+	for i in range(len(content)):
+		if not notefy.isKeyterm(content[i]):
+			continue
+		content[i] = notefy.speller.correct(content[i].strip())
+		try:
+			entries.add(str(notefy.engine.find(content[i])))
+		except:
+			continue
+	content = ' '.join(content)
+	content += "\n\n%s" % ("\n".join(list(entries)))
 
 	# create sample output text (soon to be changed)
 	title = "BILD1_"+str(int(time.time()))+".txt"
