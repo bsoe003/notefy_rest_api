@@ -1,12 +1,13 @@
-import google, search, spelling
+import google, search, formatter
 import os
 import requests
 
 class Notefy(object):
-    def __init__(self):
+    def __init__(self, dictionary=""):
         self.drive = google.Drive()
         self.engine = search.Engine()
-        self.speller = None
+        # self.speller = None
+        self.sf = formatter.Formatter(dictionary)
         self.input = ""
 
     def download(self, filename):
@@ -32,13 +33,13 @@ class Notefy(object):
         data = {"apikey": "helloworld", "language": "eng"}
         files = {"file": open(os.getcwd()+"/"+self.input, 'rb')}
         response = requests.post("https://ocr.a9t9.com/api/Parse/Image", data=data, files=files)
-        print "\nOCR Result:\n"+unicode(response.json()["ParsedResults"][0]["ParsedText"])
+        # print "\nOCR Result:\n"+unicode(response.json()["ParsedResults"][0]["ParsedText"])
         return response.json()["ParsedResults"][0]["ParsedText"]
 
     def isKeyterm(self, word):
-        if not self.speller:
+        if not self.sf.speller:
             return False
-        return word in self.speller.keyterms.keys()
+        return word in self.sf.speller.keyterms
 
     def clean(self):
         try:
