@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from spelling import Speller
+
 class Formatter(object):
     def __init__(self, dictionary):
         self.speller = Speller(dictionary)
