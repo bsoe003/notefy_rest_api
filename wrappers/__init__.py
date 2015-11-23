@@ -40,7 +40,7 @@ class Notefy(object):
         if not self.sf.speller:
             return False
         for key in self.sf.speller.keyterms:
-            if word in key.split():
+            if word.lower().strip() in key.split():
                 return True
         return False
 
