@@ -48,12 +48,12 @@ class Engine(object):
         word = word.lower()
         if word in self.cache:
             return self.cache[word]
-        data = checkDB(word)
-        if len(data) > 0:
-            data = data[0]
-            entry = Entry(data[0].title(), data[1], data[2])
-            self.cache[word] = entry
-            return self.cache[word]
+        # data = checkDB(word)
+        # if len(data) > 0:
+        #     data = data[0]
+        #     entry = Entry(data[0].title(), data[1], data[2])
+        #     self.cache[word] = entry
+        #     return self.cache[word]
         reference = wikipedia.page(word)
         entry = Entry(reference.title, wikipedia.summary(word, sentences=1), reference.url)
         self.cache[word] = entry

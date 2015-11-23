@@ -39,7 +39,10 @@ class Notefy(object):
     def isKeyterm(self, word):
         if not self.sf.speller:
             return False
-        return word in self.sf.speller.keyterms
+        for key in self.sf.speller.keyterms:
+            if word in key.split():
+                return True
+        return False
 
     def clean(self):
         try:
