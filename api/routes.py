@@ -4,13 +4,29 @@
 from flask import *
 from api import app, models
 from wrappers import Notefy
-import time
+from datetime import datetime
+import os
 
 notefy = Notefy(dictionary='dictionary/cellFirst10Page.txt')
+images = set()
 
 @app.route('/')
 def root():
     return jsonify({})
+
+@app.route('/addImage', methods=["GET", "POST"])
+def addImage():
+	if request.method != "POST":
+		body = json.dumps({"error": request.method+" method is not allowed."})
+		return Response(body, status=405, mimetype='application/json')
+	if "filename" not in request.args:
+		body = json.dumps({"error": "Missing required argument"})
+		return Response(body, status=422, mimetype='application/json')
+	images.add(request.args["filename"]+"\n")
+	f = open('images.txt', 'w')
+	f.writelines(list(images))
+	f.close()
+	return Response(json.dumps({}), status=200, mimetype='application/json')
 
 @app.route("/alert", methods=["GET", "POST"])
 def alert():
@@ -63,7 +79,10 @@ def alert():
 	content = notefy.sf.prettyPrint(content, entries)
 
 	# create sample output text (soon to be changed)
-	title = "BILD1_"+str(int(time.time()))+".txt"
+	if "course" in request.args:
+		title = request.args["course"]+"_"+str(datetime.now())+".txt"
+	else:
+		title = "UNKNOWN_"+str(datetime.now())+".txt"
 
 	# upload the text file to Google Drive
 	uploaded = notefy.upload(title, content)

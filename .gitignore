@@ -65,3 +65,4 @@ image_cache
 text_cache
 ngrok
 sample.ignore.txt
+*.db
