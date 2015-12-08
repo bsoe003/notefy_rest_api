@@ -60,21 +60,27 @@ def alert():
 	 	return Response(body, status=409, mimetype='application/json')
 
 	print "Auto-correcting string"
+	# formatted = notefy.sf.formatting(content.encode('ascii', 'ignore'))
+	# content = formatted["content"]
 	content = notefy.sf.formatting(content.encode('ascii', 'ignore'))
 
 	print "Looking through Wikipedia"
+	entries = set()
 	splitted, entries = content.split(), set()
 	for i in range(len(splitted)):
-		if not notefy.isKeyterm(splitted[i]):
+	# for term in formatted["keyterms"]:
+		term = splitted[i]
+		if not notefy.isKeyterm(term):
 			continue
 		try:
-			entries.add(notefy.engine.find(splitted[i]))
+			entries.add(notefy.engine.find(term))
 		except:
 			continue
 
 	print "Foramtting output"
 	entries = list(entries)
 	for i in range(len(entries)):
+		print entries[i]
 		entries[i] = entries[i].__dict__
 	content = notefy.sf.prettyPrint(content, entries)
 

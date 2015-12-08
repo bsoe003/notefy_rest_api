@@ -15,7 +15,6 @@ class Speller(object):
             return list(terms)
             # return re.findall('[a-z]+', text.lower())
         self.keyterms = self.train(words(file(database).readlines()))
-        print self.keyterms
 
     def train(self, features):
         model = collections.defaultdict(lambda: 1)
