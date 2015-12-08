@@ -49,9 +49,12 @@ class Formatter(object):
     def setDictionary(self, dictionary):
         self.speller = Speller(dictionary)
 
-    def prettyPrint(self, text, titleDict):
+    def prettyPrint(self, text, titleDict, keyterms):
         toReturn = "%s\n\n" % text
         for item in titleDict:
-            entry = item
-            toReturn += ("%s\nDefinition: %s\nWikipedia: %s\n\n" % (entry['title'], entry['summary'], entry['url']))
+            try:
+                index = "[%s] " % str(keyterms.index(item['title'].lower())+1)
+                toReturn += index + ("%s\nDefinition: %s\nWikipedia: %s\n\n" % (item['title'], item['summary'], item['url']))
+            except:
+                continue
         return toReturn.strip()
