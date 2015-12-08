@@ -5,9 +5,16 @@ alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
 class Speller(object):
     def __init__(self, database):
-        def words(text):
-            return re.findall('[a-z]+', text.lower())
-        self.keyterms = self.train(words(file(database).read()))
+        def words(texts):
+            terms = []
+            for text in texts:
+                text = text.strip()
+                if not text:
+                    continue
+                terms.append(text.lower())
+            return list(terms)
+            # return re.findall('[a-z]+', text.lower())
+        self.keyterms = self.train(words(file(database).readlines()))
 
     def train(self, features):
         model = collections.defaultdict(lambda: 1)

@@ -18,28 +18,31 @@ class Notefy(object):
         self.input = "image_cache/%s.jpg" % fileID
         print "Attempting to download: %s.jpg" % fileID
         if not self.drive.download(fileID):
-            return {"error": "There seems to be an error while downloading"}
+            return {"error": "DownloadError"}
         print "Download Complete!"
         return {}
 
     def upload(self, title, content):
         print "Attempting to upload OCR result"
         if not self.drive.upload(title, content):
-            return {"error": "There seems to be an error while uploading"}
+            return {"error": "UploadError"}
         print "Upload Complete!"
         return {}
 
     def sendToOCR(self):
         data = {"apikey": "helloworld", "language": "eng"}
         files = {"file": open(os.getcwd()+"/"+self.input, 'rb')}
-        response = requests.post("https://ocr.a9t9.com/api/Parse/Image", data=data, files=files)
+        response = requests.post("https://ocr.space/api/Parse/Image", data=data, files=files)
         # print "\nOCR Result:\n"+unicode(response.json()["ParsedResults"][0]["ParsedText"])
         return response.json()["ParsedResults"][0]["ParsedText"]
 
     def isKeyterm(self, word):
         if not self.sf.speller:
             return False
-        return word in self.sf.speller.keyterms
+        for key in self.sf.speller.keyterms:
+            if word.lower().strip() in key.split():
+                return True
+        return False
 
     def clean(self):
         try:
